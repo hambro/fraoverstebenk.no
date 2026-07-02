@@ -6,8 +6,10 @@ from htpy import (
     a,
     article,
     body,
+    button,
     div,
     footer,
+    form,
     h1,
     h2,
     h3,
@@ -15,6 +17,8 @@ from htpy import (
     header,
     html,
     img,
+    input,
+    label,
     li,
     link,
     main,
@@ -22,6 +26,7 @@ from htpy import (
     nav,
     p,
     section,
+    textarea,
     title,
     ul,
 )
@@ -94,5 +99,61 @@ def hat_detail(hat: Hat) -> Element:
             img(src=hat.image, alt=hat.title),
             div[hat.description],
             p[a(".button", href=f"/hatter/{hat.slug}/bestill")["Kjøp"]],
+        ],
+    )
+
+
+def form_fields() -> list[Element]:
+    return [
+        p[
+            label(for_="navn")["Navn"],
+            input("#navn", type="text", name="navn"),
+        ],
+        p[
+            label(for_="telefon")["Telefon"],
+            input("#telefon", type="tel", name="telefon"),
+        ],
+        p[
+            label(for_="melding")["Melding"],
+            textarea("#melding", name="melding", rows=5),
+        ],
+        p(".hp", aria_hidden="true")[
+            label(for_="website")["Nettside"],
+            input("#website", type="text", name="website", tabindex="-1", autocomplete="off"),
+        ],
+    ]
+
+
+def order_form(hat: Hat, error: str | None = None) -> Element:
+    return layout(
+        f"Bestill {hat.title}",
+        section[
+            h1[f"Bestill {hat.title}"],
+            p[hat.subtitle],
+            p(".error")[error] if error else None,
+            form(method="post")[
+                form_fields(),
+                p[button(type="submit")["Send bestilling"]],
+            ],
+        ],
+    )
+
+
+def thanks() -> Element:
+    return layout(
+        "Takk",
+        section[
+            h1["Takk!"],
+            p["Vi har mottatt meldingen din og tar kontakt så snart vi kan."],
+        ],
+    )
+
+
+def mail_error() -> Element:
+    return layout(
+        "Noe gikk galt",
+        section[
+            h1["Beklager, noe gikk galt"],
+            p["Vi klarte ikke å sende meldingen din akkurat nå. Prøv igjen litt senere."],
         ],
     )
