@@ -7,7 +7,7 @@ from flask import Blueprint, abort, current_app, redirect, request, url_for
 from werkzeug.wrappers import Response
 
 from fraoverstebenk import components
-from fraoverstebenk.content import get_hat, load_hats
+from fraoverstebenk.content import get_hat, load_hats, load_posts
 
 pages = Blueprint("pages", __name__)
 
@@ -81,3 +81,21 @@ def order_submit(slug: str) -> Response | tuple[str, int]:
 @pages.get("/takk")
 def thanks() -> str:
     return str(components.thanks())
+
+
+@pages.get("/kontakt")
+def contact() -> str:
+    return str(components.contact_page())
+
+
+@pages.post("/kontakt")
+def contact_submit() -> Response | tuple[str, int]:
+    result = _submit("Kontaktskjema", _read_form())
+    if result is None:
+        return str(components.contact_page(error="Navn og telefon må fylles ut.")), 400
+    return result
+
+
+@pages.get("/godt-a-vite/")
+def posts() -> str:
+    return str(components.posts_page(load_posts(_content_dir())))

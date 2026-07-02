@@ -27,11 +27,12 @@ from htpy import (
     p,
     section,
     textarea,
+    time,
     title,
     ul,
 )
 
-from fraoverstebenk.content import Hat
+from fraoverstebenk.content import Hat, Post
 
 SITE_NAME = "fra øverste benk"
 
@@ -155,5 +156,37 @@ def mail_error() -> Element:
         section[
             h1["Beklager, noe gikk galt"],
             p["Vi klarte ikke å sende meldingen din akkurat nå. Prøv igjen litt senere."],
+        ],
+    )
+
+
+def contact_page(error: str | None = None) -> Element:
+    return layout(
+        "Kontakt",
+        section[
+            h1["Kontakt oss"],
+            p["Send oss en melding, så ringer vi deg tilbake."],
+            p(".error")[error] if error else None,
+            form(method="post")[
+                form_fields(),
+                p[button(type="submit")["Send melding"]],
+            ],
+        ],
+    )
+
+
+def posts_page(posts: list[Post]) -> Element:
+    return layout(
+        "Godt å vite",
+        section[
+            h1["Godt å vite"],
+            [
+                article[
+                    h2[post.title],
+                    time(datetime=post.published.isoformat())[post.published.strftime("%d.%m.%Y")],
+                    div[post.body],
+                ]
+                for post in posts
+            ],
         ],
     )
