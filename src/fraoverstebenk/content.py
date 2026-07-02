@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -55,3 +56,37 @@ def get_hat(content_dir: Path, slug: str) -> Hat | None:
         if hat.slug == slug:
             return hat
     return None
+
+
+@dataclass(frozen=True)
+class Post:
+    slug: str
+    title: str
+    published: datetime.date
+    body: Markup
+
+
+def _load_post(path: Path) -> Post | None:
+    try:
+        parsed = frontmatter.load(path)
+        published = parsed["date"]
+        if not isinstance(published, datetime.date):
+            raise ValueError(f"date is not a date: {published!r}")
+        return Post(
+            slug=path.stem,
+            title=str(parsed["title"]),
+            published=published,
+            body=_render_markdown(parsed.content),
+        )
+    except (KeyError, ValueError) as error:
+        logger.warning("Hopper over %s: %s", path, error)
+        return None
+
+
+def load_posts(content_dir: Path) -> list[Post]:
+    posts = [
+        post
+        for path in sorted((content_dir / "godt-a-vite").glob("*.md"))
+        if (post := _load_post(path)) is not None
+    ]
+    return sorted(posts, key=lambda post: post.published, reverse=True)

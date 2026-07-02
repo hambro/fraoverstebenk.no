@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from fraoverstebenk.content import get_hat, load_hats
+from fraoverstebenk.content import get_hat, load_hats, load_posts
 
 
 def write_hat(content_dir: Path, slug: str, body: str) -> None:
@@ -65,3 +65,43 @@ def test_get_hat_by_slug(content_dir: Path) -> None:
 
 def test_get_hat_unknown_slug(content_dir: Path) -> None:
     assert get_hat(content_dir, "finnes-ikke") is None
+
+
+def write_post(content_dir: Path, filename: str, body: str) -> None:
+    post_dir = content_dir / "godt-a-vite"
+    post_dir.mkdir(parents=True, exist_ok=True)
+    (post_dir / filename).write_text(body, encoding="utf-8")
+
+
+STELL = """---
+title: Stell av hatten
+date: 2026-06-01
+---
+Børst hatten *forsiktig*.
+"""
+
+STORRELSE = """---
+title: Finn riktig størrelse
+date: 2026-06-15
+---
+Mål rundt hodet.
+"""
+
+
+def test_load_posts_newest_first(tmp_path: Path) -> None:
+    write_post(tmp_path, "2026-06-01-stell.md", STELL)
+    write_post(tmp_path, "2026-06-15-storrelse.md", STORRELSE)
+    posts = load_posts(tmp_path)
+    assert [post.title for post in posts] == ["Finn riktig størrelse", "Stell av hatten"]
+    assert "<em>forsiktig</em>" in str(posts[1].body)
+
+
+def test_load_posts_skips_malformed(tmp_path: Path) -> None:
+    write_post(tmp_path, "2026-06-01-stell.md", STELL)
+    write_post(tmp_path, "ugyldig.md", "---\ntitle: Uten dato\n---\nHei.\n")
+    posts = load_posts(tmp_path)
+    assert [post.title for post in posts] == ["Stell av hatten"]
+
+
+def test_load_posts_with_missing_directory(tmp_path: Path) -> None:
+    assert load_posts(tmp_path) == []
