@@ -1,0 +1,18 @@
+[tools]
+python = "3.13"
+uv = "latest"
+
+[tasks.dev]
+run = "uv run flask --app fraoverstebenk.app:create_app --debug run"
+
+[tasks.test]
+run = "uv run pytest"
+
+[tasks.lint]
+run = "uv run ruff check . && uv run ruff format --check ."
+
+[tasks.typecheck]
+run = "uv run mypy ."
+
+[tasks.check]
+depends = ["test", "lint", "typecheck"]

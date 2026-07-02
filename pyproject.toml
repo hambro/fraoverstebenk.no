@@ -1,0 +1,46 @@
+[project]
+name = "fraoverstebenk"
+version = "0.1.0"
+description = "Nettsiden til fra øverste benk"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1",
+    "htpy>=25.6",
+    "markdown>=3.8",
+    "python-frontmatter>=1.1",
+    "gunicorn>=23.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+    "mypy>=1.16",
+    "ruff>=0.12",
+    "types-markdown",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fraoverstebenk"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = "frontmatter.*"
+ignore_missing_imports = true
