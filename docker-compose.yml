@@ -1,0 +1,25 @@
+services:
+  web:
+    build: .
+    container_name: fraoverstebenk
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - .env
+    networks:
+      - proxy
+    volumes:
+      - ./content:/app/content:ro
+      - ./static:/app/static:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fraoverstebenk.entrypoints=https"
+      - "traefik.http.routers.fraoverstebenk.rule=Host(`xn--fraverstebenk-dnb.no`) || Host(`www.xn--fraverstebenk-dnb.no`)"
+      - "traefik.http.routers.fraoverstebenk.tls=true"
+      - "traefik.http.routers.fraoverstebenk.tls.certresolver=http"
+      - "traefik.http.services.fraoverstebenk.loadbalancer.server.port=8000"
+
+networks:
+  proxy:
+    external: true
