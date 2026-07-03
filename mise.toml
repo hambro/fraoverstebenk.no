@@ -16,3 +16,6 @@ run = "uv run mypy ."
 
 [tasks.check]
 depends = ["test", "lint", "typecheck"]
+
+[tasks.deploy]
+run = 'ssh -p 2149 blub "cd ~/services/fraøverstebenk.no && git pull --ff-only && docker compose up -d --build"'
