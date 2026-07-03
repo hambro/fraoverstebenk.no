@@ -1,28 +1,3 @@
-:root {
-  font-family: system-ui, sans-serif;
-  line-height: 1.6;
-}
-
-body {
-  margin: 0 auto;
-  max-width: 42rem;
-  padding: 0 1rem;
-}
-
-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid #ddd;
-}
-
-nav {
-  display: flex;
-  gap: 1rem;
-}
-
 ul.hats {
   list-style: none;
   padding: 0;
@@ -31,20 +6,19 @@ ul.hats {
   gap: 1rem;
 }
 
+ul.hats article {
+  margin: 0;
+  height: 100%;
+}
+
+ul.hats a {
+  text-decoration: none;
+}
+
 ul.hats img,
 article img {
   max-width: 100%;
   height: auto;
-}
-
-form label {
-  display: block;
-}
-
-form input,
-form textarea {
-  width: 100%;
-  max-width: 24rem;
 }
 
 .hp {
@@ -52,12 +26,10 @@ form textarea {
 }
 
 .error {
-  color: #b00020;
+  color: var(--pico-del-color);
 }
 
-footer {
-  margin-top: 3rem;
-  padding: 1rem 0;
-  border-top: 1px solid #ddd;
-  color: #666;
+body > footer {
+  color: var(--pico-muted-color);
+  border-top: 1px solid var(--pico-muted-border-color);
 }

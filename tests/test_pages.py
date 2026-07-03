@@ -7,6 +7,12 @@ def test_frontpage(client: FlaskClient) -> None:
     assert "fra øverste benk" in response.get_data(as_text=True)
 
 
+def test_layout_links_stylesheets(client: FlaskClient) -> None:
+    body = client.get("/").get_data(as_text=True)
+    assert '"/static/pico.classless.min.css"' in body
+    assert '"/static/style.css"' in body
+
+
 def test_hat_overview_shows_hats(client: FlaskClient) -> None:
     response = client.get("/hatter/")
     body = response.get_data(as_text=True)

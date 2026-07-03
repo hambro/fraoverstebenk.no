@@ -26,6 +26,7 @@ from htpy import (
     nav,
     p,
     section,
+    strong,
     textarea,
     time,
     title,
@@ -43,15 +44,18 @@ def layout(page_title: str, content: Node) -> Element:
             meta(charset="utf-8"),
             meta(name="viewport", content="width=device-width, initial-scale=1"),
             title[f"{page_title} – {SITE_NAME}"],
+            link(rel="stylesheet", href="/static/pico.classless.min.css"),
             link(rel="stylesheet", href="/static/style.css"),
         ],
         body[
             header[
-                a(".site-name", href="/")[SITE_NAME],
                 nav[
-                    a(href="/hatter/")["Hatter"],
-                    a(href="/godt-a-vite/")["Godt å vite"],
-                    a(href="/kontakt")["Kontakt"],
+                    ul[li[a(".site-name", href="/")[strong[SITE_NAME]]]],
+                    ul[
+                        li[a(href="/hatter/")["Hatter"]],
+                        li[a(href="/godt-a-vite/")["Godt å vite"]],
+                        li[a(href="/kontakt")["Kontakt"]],
+                    ],
                 ],
             ],
             main[content],
@@ -73,10 +77,12 @@ def frontpage() -> Element:
 
 def hat_card(hat: Hat) -> Element:
     return li[
-        a(href=f"/hatter/{hat.slug}/")[
-            img(src=hat.image, alt=hat.title),
-            h3[hat.title],
-            p[hat.subtitle],
+        article[
+            a(href=f"/hatter/{hat.slug}/")[
+                img(src=hat.image, alt=hat.title),
+                h3[hat.title],
+                p[hat.subtitle],
+            ]
         ]
     ]
 
@@ -99,7 +105,7 @@ def hat_detail(hat: Hat) -> Element:
             h2[hat.subtitle],
             img(src=hat.image, alt=hat.title),
             div[hat.description],
-            p[a(".button", href=f"/hatter/{hat.slug}/bestill")["Kjøp"]],
+            p[a(href=f"/hatter/{hat.slug}/bestill", role="button")["Kjøp"]],
         ],
     )
 
