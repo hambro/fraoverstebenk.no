@@ -17,6 +17,7 @@ meta: no. 015 · gradient, prikket · 1 190 kr
 accent: "#43B54A"
 image: /static/images/hatter/granskog.svg
 photo: /static/images/hatter/foto-granskog.png
+price: 1190
 sort: 2
 ---
 Mørk **granskoggrønn** med lysegrønne prikker.
@@ -47,6 +48,7 @@ def test_load_hats_parses_frontmatter_and_body(content_dir: Path) -> None:
     assert granskog.accent == "#43B54A"
     assert granskog.image == "/static/images/hatter/granskog.svg"
     assert granskog.photo == "/static/images/hatter/foto-granskog.png"
+    assert granskog.price == 1190
     assert "<strong>granskoggrønn</strong>" in str(granskog.description)
 
 
@@ -56,6 +58,7 @@ def test_hat_defaults_for_optional_fields(content_dir: Path) -> None:
     assert hat.meta == ""
     assert hat.accent == "#FF4E2E"
     assert hat.photo is None
+    assert hat.price is None
 
 
 def test_load_hats_skips_malformed_files(content_dir: Path) -> None:

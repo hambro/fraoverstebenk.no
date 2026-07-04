@@ -22,6 +22,7 @@ class Hat:
     accent: str
     image: str
     photo: str | None
+    price: int | None
     sort: int
     description: Markup
 
@@ -34,6 +35,7 @@ def _load_hat(path: Path) -> Hat | None:
     try:
         parsed = frontmatter.load(path)
         photo = parsed.get("photo")
+        price = parsed.get("price")
         return Hat(
             slug=path.stem,
             title=str(parsed["title"]),
@@ -41,6 +43,7 @@ def _load_hat(path: Path) -> Hat | None:
             accent=str(parsed.get("accent", DEFAULT_ACCENT)),
             image=str(parsed["image"]),
             photo=str(photo) if photo else None,
+            price=int(str(price)) if price is not None else None,
             sort=int(str(parsed.get("sort", 0))),
             description=_render_markdown(parsed.content),
         )

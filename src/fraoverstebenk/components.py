@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import json
+import re
+from typing import Any
+
 from htpy import (
     Element,
     Node,
@@ -23,6 +27,7 @@ from htpy import (
     meta,
     nav,
     p,
+    script,
     section,
     span,
     textarea,
@@ -30,11 +35,14 @@ from htpy import (
     title,
     ul,
 )
+from markupsafe import Markup
 
 from fraoverstebenk.content import Hat, Post
 
 SITE_NAME = "Fra øverste benk"
 CONTACT_EMAIL = "hei@fraoverstebenk.no"
+BASE_URL = "https://xn--fraverstebenk-dnb.no"
+DEFAULT_OG_IMAGE = "/static/images/logo-flame.png"
 
 NAV_ITEMS = [
     ("hattene", "/hatter/", "Hattene"),
@@ -69,9 +77,17 @@ def _brand() -> Element:
     ]
 
 
+def _plain_text(rendered: Markup) -> str:
+    return re.sub(r"<[^>]+>", "", str(rendered)).strip()
+
+
+def _json_ld(data: dict[str, Any]) -> Element:
+    return script(type="application/ld+json")[Markup(json.dumps(data, ensure_ascii=False))]
+
+
 def _nav_link(href: str, label_: str, is_active: bool) -> Element:
     if is_active:
-        return a(".active", href=href)[label_]
+        return a(".active", href=href, aria_current="page")[label_]
     return a(href=href)[label_]
 
 
@@ -109,20 +125,39 @@ def _rich_footer() -> Element:
 def layout(
     page_title: str,
     content: Node,
+    *,
+    description: str,
+    path: str,
     active: str | None = None,
     page_footer: Node | None = None,
+    og_type: str = "website",
+    og_image: str = DEFAULT_OG_IMAGE,
+    head_extra: Node = None,
+    noindex: bool = False,
 ) -> Element:
     return html(lang="no")[
         head[
             meta(charset="utf-8"),
             meta(name="viewport", content="width=device-width, initial-scale=1"),
             title[f"{page_title} – {SITE_NAME}"],
+            meta(name="description", content=description),
+            meta(name="robots", content="noindex") if noindex else None,
+            link(rel="canonical", href=f"{BASE_URL}{path}"),
+            meta(property="og:site_name", content=SITE_NAME),
+            meta(property="og:locale", content="nb_NO"),
+            meta(property="og:type", content=og_type),
+            meta(property="og:title", content=page_title),
+            meta(property="og:description", content=description),
+            meta(property="og:url", content=f"{BASE_URL}{path}"),
+            meta(property="og:image", content=f"{BASE_URL}{og_image}"),
             link(rel="icon", href="/static/images/logo-flame.png", type="image/png"),
             link(rel="stylesheet", href="/static/style.css"),
+            head_extra,
         ],
         body[
+            a(".skip-link", href="#innhold")["Hopp til innhold"],
             header[_nav(active)],
-            main[content],
+            main("#innhold")[content],
             page_footer if page_footer is not None else _simple_footer(),
         ],
     ]
@@ -131,7 +166,12 @@ def layout(
 def frontpage(hero_image: str | None = None) -> Element:
     return layout(
         "Håndfiltede badstuhatter",
-        section(".hero.container-wide")[
+        description=(
+            "Håndfiltede badstuhatter i ull, filtet for hånd i Norge. "
+            "Ingen blir like — din finnes det bare én av."
+        ),
+        path="/",
+        content=section(".hero.container-wide")[
             div(".hero-text")[
                 h1["Håndfiltede badstuhatter, én og én."],
                 p(".lead")[
@@ -179,7 +219,12 @@ def hat_card(hat: Hat) -> Element:
 def hat_overview(hats: list[Hat]) -> Element:
     return layout(
         "Hattene",
-        [
+        description=(
+            "Fire fargestemninger, filtet for hånd i Norge. Hver hatt er unik — "
+            "velg din, eller bestill i dine egne farger."
+        ),
+        path="/hatter/",
+        content=[
             header(".page-header.container-wide")[
                 h1["Hattene"],
                 p(".lead")[
@@ -259,10 +304,35 @@ def form_fields() -> list[Element]:
     ]
 
 
+def _product_json_ld(hat: Hat) -> Element:
+    data: dict[str, Any] = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": hat.title,
+        "description": _plain_text(hat.description),
+        "image": BASE_URL + (hat.photo or hat.image),
+        "url": f"{BASE_URL}/hatter/{hat.slug}/bestill",
+    }
+    if hat.price is not None:
+        data["offers"] = {
+            "@type": "Offer",
+            "price": str(hat.price),
+            "priceCurrency": "NOK",
+            "availability": "https://schema.org/MadeToOrder",
+        }
+    return _json_ld(data)
+
+
 def order_form(hat: Hat, error: str | None = None) -> Element:
     return layout(
         f"Bestill {hat.title}",
-        section(".container-wide.order")[
+        description=f"Bestill {hat.title} — håndfiltet badstuhatt i ull. "
+        + _plain_text(hat.description),
+        path=f"/hatter/{hat.slug}/bestill",
+        og_type="product",
+        og_image=hat.photo or hat.image,
+        head_extra=_product_json_ld(hat),
+        content=section(".container-wide.order")[
             span(".mono")[f"bestilling · {hat.meta}"],
             div(".order-grid")[
                 div(".order-image")[
@@ -279,7 +349,7 @@ def order_form(hat: Hat, error: str | None = None) -> Element:
                         "Hver hatt filtes for hånd på bestilling — din blir sin egen "
                         "variant av denne stemningen."
                     ],
-                    p(".error")[error] if error else None,
+                    p(".error", role="alert")[error] if error else None,
                     form(".order-form", method="post")[
                         form_fields(),
                         button(".btn", type="submit")["Send bestilling"],
@@ -294,7 +364,10 @@ def order_form(hat: Hat, error: str | None = None) -> Element:
 def thanks() -> Element:
     return layout(
         "Takk",
-        section(".container-narrow")[
+        description="Vi har mottatt meldingen din.",
+        path="/takk",
+        noindex=True,
+        content=section(".container-narrow")[
             div(".confirm-card")[
                 span(".check")["✓"],
                 div(".confirm-title")["Takk!"],
@@ -310,9 +383,33 @@ def thanks() -> Element:
 def mail_error() -> Element:
     return layout(
         "Noe gikk galt",
-        section(".container-narrow")[
+        description="Meldingen kunne ikke sendes.",
+        path="/",
+        noindex=True,
+        content=section(".container-narrow.post")[
             h1["Beklager, noe gikk galt"],
             p(".lead")["Vi klarte ikke å sende meldingen din akkurat nå. Prøv igjen litt senere."],
+        ],
+    )
+
+
+def not_found() -> Element:
+    return layout(
+        "Siden finnes ikke",
+        description="Denne siden finnes ikke.",
+        path="/",
+        noindex=True,
+        content=section(".container-narrow.post")[
+            span(".mono")["404"],
+            h1["Denne benken finnes ikke"],
+            p(".lead")[
+                "Siden du leter etter er borte — kanskje den er ute og kjøler seg ned. "
+                "Prøv hattene eller forsiden i stedet."
+            ],
+            div(".hero-actions")[
+                a(".btn", href="/hatter/")["Se hattene"],
+                a(".link-dotted", href="/")["Til forsiden"],
+            ],
         ],
     )
 
@@ -320,7 +417,12 @@ def mail_error() -> Element:
 def contact_page() -> Element:
     return layout(
         "Kontakt",
-        [
+        description=(
+            "Spørsmål, bestilling eller badstuprat? Send oss en melding — "
+            "vi svarer som regel samme kveld."
+        ),
+        path="/kontakt",
+        content=[
             header(".page-header.container-narrow")[
                 h1["Kontakt"],
                 p(".lead")[
@@ -376,7 +478,12 @@ def post_card(post: Post) -> Element:
 def posts_page(posts: list[Post]) -> Element:
     return layout(
         "Fra benken",
-        [
+        description=(
+            "Notater fra badstulivet — tips, spørsmål og svar, og steder vi liker. "
+            "Skrevet fra øverste benk."
+        ),
+        path="/fra-benken/",
+        content=[
             header(".page-header.container-narrow")[
                 h1["Fra benken"],
                 p(".lead")[
@@ -394,10 +501,30 @@ def posts_page(posts: list[Post]) -> Element:
     )
 
 
+def _article_json_ld(post: Post) -> Element:
+    return _json_ld(
+        {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": post.title,
+            "description": post.teaser or _plain_text(post.body)[:160],
+            "datePublished": post.published.isoformat(),
+            "inLanguage": "nb",
+            "author": {"@type": "Organization", "name": SITE_NAME},
+            "publisher": {"@type": "Organization", "name": SITE_NAME},
+            "mainEntityOfPage": f"{BASE_URL}/fra-benken/{post.slug}/",
+        }
+    )
+
+
 def post_page(post: Post) -> Element:
     return layout(
         post.title,
-        section(".container-narrow.post")[
+        description=post.teaser or _plain_text(post.body)[:160],
+        path=f"/fra-benken/{post.slug}/",
+        og_type="article",
+        head_extra=_article_json_ld(post),
+        content=section(".container-narrow.post")[
             span(".post-tag.mono")[
                 span(".accent-dot.small", style=f"background: {post.color};"),
                 post.tag,

@@ -106,3 +106,35 @@ def post_detail(slug: str) -> str:
 @pages.get("/godt-a-vite/")
 def posts_old() -> Response:
     return redirect(url_for("pages.posts"), code=301)
+
+
+@pages.get("/robots.txt")
+def robots() -> Response:
+    lines = f"User-agent: *\nAllow: /\n\nSitemap: {components.BASE_URL}/sitemap.xml\n"
+    return Response(lines, mimetype="text/plain")
+
+
+@pages.get("/sitemap.xml")
+def sitemap() -> Response:
+    content_dir = _content_dir()
+    entries: list[tuple[str, str | None]] = [
+        ("/", None),
+        ("/hatter/", None),
+        ("/fra-benken/", None),
+        ("/kontakt", None),
+    ]
+    entries += [(f"/hatter/{hat.slug}/bestill", None) for hat in load_hats(content_dir)]
+    entries += [
+        (f"/fra-benken/{post.slug}/", post.published.isoformat())
+        for post in load_posts(content_dir)
+    ]
+    urls = []
+    for path, lastmod in entries:
+        lastmod_xml = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
+        urls.append(f"<url><loc>{components.BASE_URL}{path}</loc>{lastmod_xml}</url>")
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        f"{''.join(urls)}</urlset>"
+    )
+    return Response(xml, mimetype="application/xml")

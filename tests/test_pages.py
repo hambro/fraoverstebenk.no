@@ -18,7 +18,7 @@ def test_layout_links_stylesheet_and_logo(client: FlaskClient) -> None:
 
 def test_nav_marks_active_page(client: FlaskClient) -> None:
     body = client.get("/hatter/").get_data(as_text=True)
-    assert '<a class="active" href="/hatter/">Hattene</a>' in body
+    assert '<a class="active" href="/hatter/" aria-current="page">Hattene</a>' in body
 
 
 def test_hat_overview_shows_hats(client: FlaskClient) -> None:
