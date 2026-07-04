@@ -21,16 +21,23 @@ Nye hatter: legg en `.md`-fil i `content/hatter/`:
 
 ```markdown
 ---
-title: Solhatt
-subtitle: Bred brem, kjølig panne
-image: /static/images/hatter/solhatt.svg
+title: Solnedgang
+meta: no. 014 · gradient, prikket · 1 190 kr
+accent: "#FF4E2E"
+image: /static/images/hatter/solnedgang.svg
+photo: /static/images/hatter/foto-solnedgang.png
 sort: 1
 ---
 Beskrivelse i markdown.
 ```
 
-Bildet legges i `static/images/hatter/`. Nye «Godt å vite»-poster: legg en
-`.md`-fil i `content/godt-a-vite/` med `title` og `date` i frontmatter.
+`meta`, `accent` og `photo` er valgfrie. `image` vises i galleriet (rund
+utsnitt), `photo` («slik ser den ut i virkeligheten») vises på
+bestillingssiden når den finnes. Bilder legges i `static/images/hatter/`.
+
+Nye «Fra benken»-poster: legg en `.md`-fil i `content/fra-benken/` med
+`title` og `date` i frontmatter. Valgfritt: `tag` (etikett på kortet),
+`color` (fargeprikk) og `teaser` (utdraget på oversikten).
 
 I produksjon er `content/` og `static/` montert inn i containeren, så nytt
 innhold er bare `git pull` på serveren — ingen rebuild.

@@ -1,48 +1,42 @@
 from flask.testing import FlaskClient
 
-SentMail = list[tuple[str, dict[str, str]]]
 
-
-def test_contact_page(client: FlaskClient) -> None:
+def test_contact_page_has_mailto_and_cards(client: FlaskClient) -> None:
     response = client.get("/kontakt")
     body = response.get_data(as_text=True)
     assert response.status_code == 200
     assert "Kontakt" in body
-    assert 'name="navn"' in body
-    assert 'name="website"' in body
+    assert "mailto:hei@fraoverstebenk.no" in body
+    assert "Bestill i dine farger" in body
+    assert "Stell av hatten" in body
+    assert "Tips til kartet" in body
 
 
-def test_contact_submit_sends_mail(client: FlaskClient, sent_mail: SentMail) -> None:
-    response = client.post(
-        "/kontakt",
-        data={"navn": "Ola", "telefon": "12345678", "melding": "Hei!"},
-        follow_redirects=True,
-    )
-    assert response.status_code == 200
-    assert "Takk" in response.get_data(as_text=True)
-    assert sent_mail == [
-        ("Kontaktskjema", {"Navn": "Ola", "Telefon": "12345678", "Melding": "Hei!"})
-    ]
-
-
-def test_contact_submit_honeypot(client: FlaskClient, sent_mail: SentMail) -> None:
-    client.post(
-        "/kontakt",
-        data={"navn": "Bot", "telefon": "1", "melding": "", "website": "x"},
-    )
-    assert sent_mail == []
-
-
-def test_contact_submit_requires_name_and_phone(client: FlaskClient, sent_mail: SentMail) -> None:
-    response = client.post("/kontakt", data={"navn": "", "telefon": ""})
-    assert response.status_code == 400
-    assert sent_mail == []
-
-
-def test_posts_page_renders_all_posts(client: FlaskClient) -> None:
-    response = client.get("/godt-a-vite/")
+def test_posts_page_shows_teaser_cards(client: FlaskClient) -> None:
+    response = client.get("/fra-benken/")
     body = response.get_data(as_text=True)
     assert response.status_code == 200
-    assert "Godt å vite" in body
+    assert "Fra benken" in body
+    assert "Stell av hatten" in body
+    assert "Slik holder hatten seg fin i mange år." in body
+    assert "tips og triks" in body
+    assert "/fra-benken/stell-av-hatten/" in body
+    assert "Børst hatten forsiktig." not in body
+
+
+def test_post_detail_shows_body(client: FlaskClient) -> None:
+    response = client.get("/fra-benken/stell-av-hatten/")
+    body = response.get_data(as_text=True)
+    assert response.status_code == 200
     assert "Stell av hatten" in body
     assert "Børst hatten forsiktig." in body
+
+
+def test_post_detail_unknown_slug_404(client: FlaskClient) -> None:
+    assert client.get("/fra-benken/finnes-ikke/").status_code == 404
+
+
+def test_old_posts_url_redirects(client: FlaskClient) -> None:
+    response = client.get("/godt-a-vite/")
+    assert response.status_code == 301
+    assert response.headers["Location"].endswith("/fra-benken/")

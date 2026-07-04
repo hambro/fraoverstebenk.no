@@ -8,17 +8,21 @@ from flask.testing import FlaskClient
 from fraoverstebenk.app import create_app
 
 HAT = """---
-title: Solhatt
-subtitle: Bred brem mot sol
-image: /static/images/hatter/solhatt.svg
+title: Solnedgang
+meta: no. 014 · gradient, prikket · 1 190 kr
+accent: "#FF4E2E"
+image: /static/images/hatter/solnedgang.svg
 sort: 1
 ---
-En hatt med **bred brem**.
+Gul topp som glir over i **dyp rød**.
 """
 
 POST = """---
 title: Stell av hatten
 date: 2026-06-01
+tag: tips og triks
+color: "#43B54A"
+teaser: Slik holder hatten seg fin i mange år.
 ---
 Børst hatten forsiktig.
 """
@@ -28,10 +32,10 @@ Børst hatten forsiktig.
 def content_dir(tmp_path: Path) -> Path:
     hat_dir = tmp_path / "hatter"
     hat_dir.mkdir()
-    (hat_dir / "solhatt.md").write_text(HAT, encoding="utf-8")
-    post_dir = tmp_path / "godt-a-vite"
+    (hat_dir / "solnedgang.md").write_text(HAT, encoding="utf-8")
+    post_dir = tmp_path / "fra-benken"
     post_dir.mkdir()
-    (post_dir / "2026-06-01-stell.md").write_text(POST, encoding="utf-8")
+    (post_dir / "stell-av-hatten.md").write_text(POST, encoding="utf-8")
     return tmp_path
 
 
