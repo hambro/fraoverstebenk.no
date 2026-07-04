@@ -215,9 +215,9 @@ def hat_card(hat: Hat) -> Element:
             div(".mono")[hat.meta],
             div(".hat-desc")[hat.description],
             a(
-                ".order-link",
+                ".btn.order-btn",
                 href=f"/hatter/{hat.slug}/bestill",
-                style=f"border-bottom-color: {hat.accent};",
+                style=f"--btn-bg: {hat.accent};",
             )["Bestill denne"],
         ],
     ]

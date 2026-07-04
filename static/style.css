@@ -407,14 +407,16 @@ ul.hats {
   margin: 0;
 }
 
-.order-link {
+.order-btn {
+  background: var(--btn-bg, var(--ink));
   font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 2px;
+  padding: 10px 20px;
   align-self: flex-start;
-  margin-top: 4px;
+  margin-top: 6px;
+}
+
+.order-btn:hover {
+  background: var(--ink);
 }
 
 /* Bands (full-width sections) */
