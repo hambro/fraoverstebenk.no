@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from pathlib import Path
 from typing import Any
 
 from htpy import (
@@ -30,6 +31,7 @@ from htpy import (
     script,
     section,
     span,
+    style,
     textarea,
     time,
     title,
@@ -83,6 +85,10 @@ def _plain_text(rendered: Markup) -> str:
 
 def _json_ld(data: dict[str, Any]) -> Element:
     return script(type="application/ld+json")[Markup(json.dumps(data, ensure_ascii=False))]
+
+
+def _inline_css() -> Markup:
+    return Markup(Path("static/style.css").read_text(encoding="utf-8"))
 
 
 def _nav_link(href: str, label_: str, is_active: bool) -> Element:
@@ -151,7 +157,7 @@ def layout(
             meta(property="og:url", content=f"{BASE_URL}{path}"),
             meta(property="og:image", content=f"{BASE_URL}{og_image}"),
             link(rel="icon", href="/static/images/logo-flame.png", type="image/png"),
-            link(rel="stylesheet", href="/static/style.css"),
+            style[_inline_css()],
             head_extra,
         ],
         body[
@@ -190,6 +196,7 @@ def frontpage(hero_image: str | None = None) -> Element:
                 img(
                     src=hero_image or "/static/images/hatter/solnedgang.svg",
                     alt="Håndfiltet badstuhatt",
+                    fetchpriority="high",
                 ),
             ],
         ],
@@ -337,7 +344,7 @@ def order_form(hat: Hat, error: str | None = None) -> Element:
             div(".order-grid")[
                 div(".order-image")[
                     span(".mono")["slik ser den ut i virkeligheten"],
-                    img(src=hat.photo or hat.image, alt=hat.title),
+                    img(src=hat.photo or hat.image, alt=hat.title, fetchpriority="high"),
                 ],
                 div(".order-details")[
                     div(".hat-title-row")[

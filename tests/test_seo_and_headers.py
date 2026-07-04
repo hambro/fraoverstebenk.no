@@ -65,7 +65,7 @@ def test_404_page_is_styled(client: FlaskClient) -> None:
     body = response.get_data(as_text=True)
     assert response.status_code == 404
     assert "Denne benken finnes ikke" in body
-    assert '"/static/style.css"' in body
+    assert "<style>" in body
     assert '<meta name="robots" content="noindex">' in body
 
 

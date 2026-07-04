@@ -10,9 +10,10 @@ def test_frontpage(client: FlaskClient) -> None:
     assert "Se hattene" in body
 
 
-def test_layout_links_stylesheet_and_logo(client: FlaskClient) -> None:
+def test_layout_inlines_css_and_links_logo(client: FlaskClient) -> None:
     body = client.get("/").get_data(as_text=True)
-    assert '"/static/style.css"' in body
+    assert "<style>" in body
+    assert "--bg: #faf6ef;" in body
     assert "/static/images/logo-flame.png" in body
 
 
