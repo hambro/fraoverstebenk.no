@@ -1,6 +1,6 @@
 ---
 title: Rosa kveld
-meta: no. 017 · gradient, prikket · 1 190 kr
+meta: no. 017 · gradient, prikket
 accent: "#FF7BAE"
 image: /static/images/hatter/rosakveld.svg
 price: 1190

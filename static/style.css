@@ -397,6 +397,11 @@ ul.hats {
   font-size: 20px;
 }
 
+.hat-price {
+  font-weight: 700;
+  font-size: 15px;
+}
+
 .hat-desc {
   font-size: 14.5px;
   line-height: 1.55;

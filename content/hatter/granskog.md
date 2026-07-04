@@ -1,6 +1,6 @@
 ---
 title: Granskog
-meta: no. 015 · gradient, prikket · 1 190 kr
+meta: no. 015 · gradient, prikket
 accent: "#43B54A"
 image: /static/images/hatter/granskog.svg
 price: 1190

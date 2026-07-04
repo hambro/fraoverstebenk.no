@@ -91,6 +91,11 @@ def _inline_css() -> Markup:
     return Markup(Path("static/style.css").read_text(encoding="utf-8"))
 
 
+def _format_price(price: int) -> str:
+    grouped = f"{price:,}".replace(",", " ")
+    return f"{grouped} kr"
+
+
 def _nav_link(href: str, label_: str, is_active: bool) -> Element:
     if is_active:
         return a(".active", href=href, aria_current="page")[label_]
@@ -213,6 +218,7 @@ def hat_card(hat: Hat) -> Element:
                 span(".accent-dot", style=f"background: {hat.accent};"),
             ],
             div(".mono")[hat.meta],
+            div(".hat-price")[_format_price(hat.price)] if hat.price is not None else None,
             div(".hat-desc")[hat.description],
             a(
                 ".btn.order-btn",
@@ -351,6 +357,7 @@ def order_form(hat: Hat, error: str | None = None) -> Element:
                         h1[hat.title],
                         span(".accent-dot.large", style=f"background: {hat.accent};"),
                     ],
+                    div(".hat-price")[_format_price(hat.price)] if hat.price is not None else None,
                     div(".hat-desc")[hat.description],
                     p[
                         "Hver hatt filtes for hånd på bestilling — din blir sin egen "

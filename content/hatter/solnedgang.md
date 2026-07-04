@@ -1,6 +1,6 @@
 ---
 title: Solnedgang
-meta: no. 014 · gradient, prikket · 1 190 kr
+meta: no. 014 · gradient, prikket
 accent: "#FF4E2E"
 image: /static/images/hatter/solnedgang.svg
 price: 1190

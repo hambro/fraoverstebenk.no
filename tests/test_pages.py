@@ -28,7 +28,8 @@ def test_hat_overview_shows_hats(client: FlaskClient) -> None:
     assert response.status_code == 200
     assert "Hattene" in body
     assert "Solnedgang" in body
-    assert "no. 014 · gradient, prikket · 1 190 kr" in body
+    assert "no. 014 · gradient, prikket" in body
+    assert "1 190 kr" in body
     assert "/static/images/hatter/solnedgang.svg" in body
     assert "/hatter/solnedgang/bestill" in body
     assert "01 modeller" in body

@@ -1,6 +1,6 @@
 ---
 title: Havdis
-meta: no. 016 · gradient, prikket · 1 190 kr
+meta: no. 016 · gradient, prikket
 accent: "#3B8DE8"
 image: /static/images/hatter/havdis.svg
 price: 1190
